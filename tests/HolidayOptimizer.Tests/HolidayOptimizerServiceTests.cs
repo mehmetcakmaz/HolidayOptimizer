@@ -36,5 +36,21 @@ namespace HolidayOptimizer.Tests
             Assert.True(result.HasError);
             Assert.Equal($"{nameof(year)} parameter must be a valid value.", result.Errors.First());
         }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(5)]
+        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnException_When_Year_Is_Valid(int year)
+        {
+            // Arrange
+            var holidayOptimizerService = new HolidayOptimizerService();
+
+            // Act
+            var result = holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
+
+            // Assert
+            Assert.False(result.HasError);
+        }
     }
 }

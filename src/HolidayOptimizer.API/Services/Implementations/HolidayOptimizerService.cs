@@ -26,8 +26,19 @@ namespace HolidayOptimizer.API.Services.Implementations
             throw new NotImplementedException("Not implemented");
         }
 
-        public string GetCountryWithMostUniqueHolidaysByYear()
+        public BaseResponse<string> GetCountryWithMostUniqueHolidaysByYear(int year)
         {
+            var response = new BaseResponse<string>();
+            if (year < DateTime.MinValue.Year)
+            {
+                response.Errors.Add($"{nameof(year)} parameter must be a valid value.");
+            }
+
+            if (response.HasError)
+            {
+                return response;
+            }
+
             throw new NotImplementedException("Not implemented");
         }
     }

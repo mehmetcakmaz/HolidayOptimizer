@@ -50,13 +50,20 @@ namespace HolidayOptimizer.Tests
                 }
             };
 
+            var mockCountryModel = new CountryModel()
+            {
+                CountryCode = "NL",
+                OfficialName = "Netherlands"
+            };
+
             _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
+            _mockNagerService.Setup(s => s.GetCountryInfoAsync(It.IsAny<string>())).ReturnsAsync(() => mockCountryModel);
 
             // Act
             var result = await _holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
 
             // Assert
-            Assert.Equal("NL", result);
+            Assert.Equal("NL", result.Data.CountryCode);
         }
 
 

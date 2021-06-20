@@ -15,8 +15,13 @@ namespace HolidayOptimizer.API.Services.Implementations
             _nagerService = nagerService;
         }
 
-        public async Task<string> GetCountryWithMostHolidaysThisYear()
+        public async Task<BaseResponse<GetCountryWithMostHolidaysResponse>> GetCountryWithMostHolidaysThisYear()
         {
+            var response = new BaseResponse<GetCountryWithMostHolidaysResponse>()
+            {
+                Data = new GetCountryWithMostHolidaysResponse()
+            };
+
             var holidays = await _nagerService.GetPublicHolidaysForAllCountryAsync(DateTime.Now.Year);
 
             var mostHolidayCountry = holidays.GroupBy(x => x.CountryCode).Select(x => new
@@ -25,7 +30,12 @@ namespace HolidayOptimizer.API.Services.Implementations
                 count = x.Count()
             }).OrderByDescending(x => x.count).First();
 
-            return mostHolidayCountry.countryCode;
+            var countryModel = await _nagerService.GetCountryInfoAsync(mostHolidayCountry.countryCode);
+
+            response.Data.CountryCode = countryModel.CountryCode;
+            response.Data.OfficialName = countryModel.OfficialName;
+
+            return response;
         }
 
         public async Task<BaseResponse<string>> GetMonthWithMostHolidaysByYear(int year)
@@ -81,6 +91,7 @@ namespace HolidayOptimizer.API.Services.Implementations
 
             var holiday = holidaysGroupedByDay.First();
 
+            //Since I am sorting by Count, the first item should be a day with 1 country in it. If not, there is no day that meets the desired condition.
             if (holiday.items.Count == 1)
             {
                 response.Data = holiday.items.First().CountryCode;

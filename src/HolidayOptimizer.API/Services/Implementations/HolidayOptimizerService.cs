@@ -25,5 +25,10 @@ namespace HolidayOptimizer.API.Services.Implementations
 
             throw new NotImplementedException("Not implemented");
         }
+
+        public string GetCountryWithMostUniqueHolidaysByYear()
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

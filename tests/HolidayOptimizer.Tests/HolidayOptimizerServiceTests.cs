@@ -52,5 +52,18 @@ namespace HolidayOptimizer.Tests
             // Assert
             Assert.False(result.HasError);
         }
+
+        [Fact]
+        public void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear()
+        {
+            // Arrange
+            var holidayOptimizerService = new HolidayOptimizerService();
+
+            // Act
+            var result = holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear();
+
+            // Assert
+            Assert.NotEmpty(result);
+        }
     }
 }

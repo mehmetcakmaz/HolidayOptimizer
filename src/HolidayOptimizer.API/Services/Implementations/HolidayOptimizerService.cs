@@ -1,13 +1,30 @@
 ﻿using HolidayOptimizer.API.Model.Responses;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace HolidayOptimizer.API.Services.Implementations
 {
     public class HolidayOptimizerService : IHolidayOptimizerService
     {
-        public string GetCountryWithMostHolidaysThisYear()
+        private readonly INagerService _nagerService;
+
+        public HolidayOptimizerService(INagerService nagerService)
         {
-            throw new NotImplementedException("Not implemented.");
+            _nagerService = nagerService;
+        }
+
+        public async Task<string> GetCountryWithMostHolidaysThisYear()
+        {
+            var result = await _nagerService.GetPublicHolidaysForAllCountryAsync(DateTime.Now.Year);
+
+            var mostHolidayCountry = result.GroupBy(x => x.CountryCode).Select(x => new
+            {
+                countryCode = x.Key,
+                count = x.Count()
+            }).OrderByDescending(x => x.count).First();
+
+            return mostHolidayCountry.countryCode;
         }
 
         public BaseResponse<string> GetMonthWithMostHolidaysByYear(int year)

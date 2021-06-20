@@ -1,22 +1,61 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using HolidayOptimizer.API.Model.Domain;
+using HolidayOptimizer.API.Services;
 using HolidayOptimizer.API.Services.Implementations;
+using Moq;
 using Xunit;
 
 namespace HolidayOptimizer.Tests
 {
     public class HolidayOptimizerServiceTests
     {
+        private readonly HolidayOptimizerService _holidayOptimizerService;
+        private Mock<INagerService> _mockNagerService = new Mock<INagerService>();
+
+        public HolidayOptimizerServiceTests()
+        {
+            _holidayOptimizerService = new HolidayOptimizerService(_mockNagerService.Object);
+        }
+
         [Fact]
-        public void HolidayOptimizerService_GetCountryWithMostHolidaysThisYear()
+        public async Task HolidayOptimizerService_GetCountryWithMostHolidaysThisYear()
         {
             // Arrange
-            var holidayOptimizerService = new HolidayOptimizerService();
+            var mockHolidayModel = new List<HolidayModel>()
+            {
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = DateTime.Now,
+                    LocalName = "Sample",
+                    Name = "Sample"
+                },
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = DateTime.Now,
+                    LocalName = "Sample 2",
+                    Name = "Sample 1"
+                },
+                new()
+                {
+                    CountryCode = "TR",
+                    Date = DateTime.Now,
+                    LocalName = "Sample",
+                    Name = "Sample"
+                }
+            };
+
+            _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
 
             // Act
-            var result = holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
+            var result = await _holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
 
             // Assert
-            Assert.NotEmpty(result);
+            Assert.Equal("NL", result);
         }
 
 
@@ -27,10 +66,10 @@ namespace HolidayOptimizer.Tests
         public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
         {
             // Arrange
-            var holidayOptimizerService = new HolidayOptimizerService();
+            
 
             // Act
-            var result = holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
+            var result = _holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
 
             // Assert
             Assert.True(result.HasError);
@@ -44,10 +83,10 @@ namespace HolidayOptimizer.Tests
         public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnException_When_Year_Is_Valid(int year)
         {
             // Arrange
-            var holidayOptimizerService = new HolidayOptimizerService();
+            
 
             // Act
-            var result = holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
+            var result = _holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
 
             // Assert
             Assert.False(result.HasError);
@@ -60,10 +99,10 @@ namespace HolidayOptimizer.Tests
         public void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
         {
             // Arrange
-            var holidayOptimizerService = new HolidayOptimizerService();
+            
 
             // Act
-            var result = holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
+            var result = _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
 
             // Assert
             Assert.True(result.HasError);
@@ -77,10 +116,10 @@ namespace HolidayOptimizer.Tests
         public void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnException_When_Year_Is_Valid(int year)
         {
             // Arrange
-            var holidayOptimizerService = new HolidayOptimizerService();
+            
 
             // Act
-            var result = holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
+            var result = _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
 
             // Assert
             Assert.False(result.HasError);

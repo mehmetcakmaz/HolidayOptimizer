@@ -38,9 +38,9 @@ namespace HolidayOptimizer.API.Services.Implementations
             return response;
         }
 
-        public async Task<BaseResponse<string>> GetMonthWithMostHolidaysByYear(int year)
+        public async Task<BaseResponse<GetMonthWithMostHolidaysResponse>> GetMonthWithMostHolidaysByYear(int year)
         {
-            var response = new BaseResponse<string>();
+            var response = new BaseResponse<GetMonthWithMostHolidaysResponse>();
             if (year < DateTime.MinValue.Year)
             {
                 response.Errors.Add($"{nameof(year)} parameter must be a valid value.");
@@ -59,17 +59,17 @@ namespace HolidayOptimizer.API.Services.Implementations
                 count = x.Count()
             }).OrderByDescending(x => x.count).First();
 
-            response.Data = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(mostHolidayMonth.month);
+            response.Data = new GetMonthWithMostHolidaysResponse()
+            {
+                Month = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(mostHolidayMonth.month)
+            };
 
             return response;
         }
 
-        public async Task<BaseResponse<string>> GetCountryWithMostUniqueHolidaysByYear(int year)
+        public async Task<BaseResponse<GetCountryWithMostUniqueHolidaysResponse>> GetCountryWithMostUniqueHolidaysByYear(int year)
         {
-            var response = new BaseResponse<string>()
-            {
-                Data = string.Empty
-            };
+            var response = new BaseResponse<GetCountryWithMostUniqueHolidaysResponse>();
 
             if (year < DateTime.MinValue.Year)
             {
@@ -94,7 +94,13 @@ namespace HolidayOptimizer.API.Services.Implementations
             //Since I am sorting by Count, the first item should be a day with 1 country in it. If not, there is no day that meets the desired condition.
             if (holiday.items.Count == 1)
             {
-                response.Data = holiday.items.First().CountryCode;
+                var country = await _nagerService.GetCountryInfoAsync(holiday.items.First().CountryCode);
+
+                response.Data = new GetCountryWithMostUniqueHolidaysResponse()
+                {
+                    CountryCode = country.CountryCode,
+                    OfficialName = country.OfficialName
+                };
             }
 
             return response;

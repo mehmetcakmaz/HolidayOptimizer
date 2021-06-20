@@ -117,7 +117,7 @@ namespace HolidayOptimizer.Tests
 
             // Assert
             Assert.False(result.HasError);
-            Assert.Equal(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(DateTime.Now.Month), result.Data);
+            Assert.Equal(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(DateTime.Now.Month), result.Data.Month);
         }
 
         [Theory]
@@ -170,7 +170,7 @@ namespace HolidayOptimizer.Tests
 
             // Assert
             Assert.False(result.HasError);
-            Assert.Empty(result.Data);
+            Assert.Null(result.Data);
         }
 
         [Fact]
@@ -202,14 +202,21 @@ namespace HolidayOptimizer.Tests
                 }
             };
 
+            var mockCountryModel = new CountryModel()
+            {
+                CountryCode = "NL",
+                OfficialName = "Netherlands"
+            };
+
             _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
+            _mockNagerService.Setup(s => s.GetCountryInfoAsync(It.IsAny<string>())).ReturnsAsync(() => mockCountryModel);
 
             // Act
             var result = await _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(DateTime.Now.Year);
 
             // Assert
             Assert.False(result.HasError);
-            Assert.Equal("NL", result.Data);
+            Assert.Equal("NL", result.Data.CountryCode);
         }
     }
 }

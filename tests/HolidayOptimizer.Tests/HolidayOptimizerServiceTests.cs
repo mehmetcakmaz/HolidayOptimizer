@@ -1,4 +1,5 @@
-﻿using HolidayOptimizer.API.Services.Implementations;
+﻿using System.Linq;
+using HolidayOptimizer.API.Services.Implementations;
 using Xunit;
 
 namespace HolidayOptimizer.Tests
@@ -19,17 +20,21 @@ namespace HolidayOptimizer.Tests
         }
 
 
-        [Fact]
-        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(-5)]
+        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
         {
             // Arrange
             var holidayOptimizerService = new HolidayOptimizerService();
 
             // Act
-            var result = holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
+            var result = holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
 
             // Assert
-            Assert.NotEmpty(result);
+            Assert.True(result.HasError);
+            Assert.Equal($"{nameof(year)} parameter must be a valid value.", result.Errors.First());
         }
     }
 }

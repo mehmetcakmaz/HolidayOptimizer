@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HolidayOptimizer.API.Model.Domain;
+﻿using HolidayOptimizer.API.Model.Domain;
 using HolidayOptimizer.API.Services;
 using HolidayOptimizer.API.Services.Implementations;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace HolidayOptimizer.Tests
@@ -63,33 +64,54 @@ namespace HolidayOptimizer.Tests
         [InlineData(0)]
         [InlineData(-1)]
         [InlineData(-5)]
-        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
+        public async void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
         {
-            // Arrange
-            
-
             // Act
-            var result = _holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
+            var result = await _holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
 
             // Assert
             Assert.True(result.HasError);
             Assert.Equal($"{nameof(year)} parameter must be a valid value.", result.Errors.First());
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(5)]
-        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnException_When_Year_Is_Valid(int year)
+        [Fact]
+        public async void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnException_When_Year_Is_Valid()
         {
             // Arrange
-            
+            // Arrange
+            var mockHolidayModel = new List<HolidayModel>()
+            {
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = DateTime.Now,
+                    LocalName = "Sample",
+                    Name = "Sample"
+                },
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = DateTime.Now,
+                    LocalName = "Sample 2",
+                    Name = "Sample 1"
+                },
+                new()
+                {
+                    CountryCode = "TR",
+                    Date = DateTime.Now,
+                    LocalName = "Sample",
+                    Name = "Sample"
+                }
+            };
+
+            _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
 
             // Act
-            var result = _holidayOptimizerService.GetMonthWithMostHolidaysByYear(year);
+            var result = await _holidayOptimizerService.GetMonthWithMostHolidaysByYear(DateTime.Now.Year);
 
             // Assert
             Assert.False(result.HasError);
+            Assert.Equal(CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(DateTime.Now.Month), result.Data);
         }
 
         [Theory]

@@ -1,5 +1,7 @@
 ﻿using HolidayOptimizer.API.Model.Responses;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,9 +18,9 @@ namespace HolidayOptimizer.API.Services.Implementations
 
         public async Task<string> GetCountryWithMostHolidaysThisYear()
         {
-            var result = await _nagerService.GetPublicHolidaysForAllCountryAsync(DateTime.Now.Year);
+            var holidays = await _nagerService.GetPublicHolidaysForAllCountryAsync(DateTime.Now.Year);
 
-            var mostHolidayCountry = result.GroupBy(x => x.CountryCode).Select(x => new
+            var mostHolidayCountry = holidays.GroupBy(x => x.CountryCode).Select(x => new
             {
                 countryCode = x.Key,
                 count = x.Count()
@@ -27,7 +29,7 @@ namespace HolidayOptimizer.API.Services.Implementations
             return mostHolidayCountry.countryCode;
         }
 
-        public BaseResponse<string> GetMonthWithMostHolidaysByYear(int year)
+        public async Task<BaseResponse<string>> GetMonthWithMostHolidaysByYear(int year)
         {
             var response = new BaseResponse<string>();
             if (year < DateTime.MinValue.Year)
@@ -40,7 +42,17 @@ namespace HolidayOptimizer.API.Services.Implementations
                 return response;
             }
 
-            throw new NotImplementedException("Not implemented");
+            var holidays = await _nagerService.GetPublicHolidaysForAllCountryAsync(year);
+
+            var mostHolidayMonth = holidays.GroupBy(x => x.Date.Month).Select(x => new
+            {
+                month = x.Key,
+                count = x.Count()
+            }).OrderByDescending(x => x.count).First();
+
+            response.Data = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(mostHolidayMonth.month);
+
+            return response;
         }
 
         public BaseResponse<string> GetCountryWithMostUniqueHolidaysByYear(int year)

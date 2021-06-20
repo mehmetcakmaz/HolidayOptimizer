@@ -5,8 +5,6 @@ namespace HolidayOptimizer.Tests
 {
     public class HolidayOptimizerServiceTests
     {
-        const string MOST_HOLIDAY_COUNTRY_SAMPLE = "NL";
-
         [Fact]
         public void HolidayOptimizerService_GetCountryWithMostHolidaysThisYear()
         {
@@ -17,7 +15,21 @@ namespace HolidayOptimizer.Tests
             var result = holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
 
             // Assert
-            Assert.Equal(MOST_HOLIDAY_COUNTRY_SAMPLE, result);
+            Assert.NotEmpty(result);
+        }
+
+
+        [Fact]
+        public void HolidayOptimizerService_GetMonthWithMostHolidaysByYear()
+        {
+            // Arrange
+            var holidayOptimizerService = new HolidayOptimizerService();
+
+            // Act
+            var result = holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
+
+            // Assert
+            Assert.NotEmpty(result);
         }
     }
 }

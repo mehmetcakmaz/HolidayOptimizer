@@ -12,5 +12,9 @@ namespace HolidayOptimizer.API.Services.Implementations
             throw new NotImplementedException("Not implemented.");
         }
 
+        public string GetMonthWithMostHolidaysByYear(int year)
+        {
+            throw new NotImplementedException("Not implemented");
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace HolidayOptimizer.Tests
     {
         private readonly HolidayOptimizerService _holidayOptimizerService;
         private Mock<INagerService> _mockNagerService = new Mock<INagerService>();
+        private const string NetherlandsCountryCode = "NL";
 
         public HolidayOptimizerServiceTests()
         {
@@ -63,7 +64,7 @@ namespace HolidayOptimizer.Tests
             var result = await _holidayOptimizerService.GetCountryWithMostHolidaysThisYear();
 
             // Assert
-            Assert.Equal("NL", result.Data.CountryCode);
+            Assert.Equal(NetherlandsCountryCode, result.Data.CountryCode);
         }
 
 
@@ -216,7 +217,7 @@ namespace HolidayOptimizer.Tests
 
             // Assert
             Assert.False(result.HasError);
-            Assert.Equal("NL", result.Data.CountryCode);
+            Assert.Equal(NetherlandsCountryCode, result.Data.CountryCode);
         }
     }
 }

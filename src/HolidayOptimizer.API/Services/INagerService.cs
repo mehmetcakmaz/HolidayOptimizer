@@ -6,7 +6,7 @@ namespace HolidayOptimizer.API.Services
 {
     public interface INagerService
     {
-        Task<IEnumerable<HolidayModel>> GetPublicHolidayAsync(string countryCode, int year);
         Task<IEnumerable<HolidayModel>> GetPublicHolidaysForAllCountryAsync(int year);
+        Task<CountryModel> GetCountryInfoAsync(string countryCode);
     }
 }

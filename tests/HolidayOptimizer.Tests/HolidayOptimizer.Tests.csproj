@@ -19,4 +19,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\HolidayOptimizer.API\HolidayOptimizer.API.csproj" />
+  </ItemGroup>
+
 </Project>

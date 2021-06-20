@@ -1,6 +1,5 @@
 ﻿using HolidayOptimizer.API.Model.Responses;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,9 +54,13 @@ namespace HolidayOptimizer.API.Services.Implementations
             return response;
         }
 
-        public BaseResponse<string> GetCountryWithMostUniqueHolidaysByYear(int year)
+        public async Task<BaseResponse<string>> GetCountryWithMostUniqueHolidaysByYear(int year)
         {
-            var response = new BaseResponse<string>();
+            var response = new BaseResponse<string>()
+            {
+                Data = string.Empty
+            };
+
             if (year < DateTime.MinValue.Year)
             {
                 response.Errors.Add($"{nameof(year)} parameter must be a valid value.");
@@ -68,7 +71,22 @@ namespace HolidayOptimizer.API.Services.Implementations
                 return response;
             }
 
-            throw new NotImplementedException("Not implemented");
+            var holidays = await _nagerService.GetPublicHolidaysForAllCountryAsync(year);
+
+            var holidaysGroupedByDay = holidays.GroupBy(x => x.Date.DayOfYear).Select(x => new
+            {
+                dayOfYear = x.Key,
+                items = x.ToList()
+            }).OrderBy(x => x.items.Count);
+
+            var holiday = holidaysGroupedByDay.First();
+
+            if (holiday.items.Count == 1)
+            {
+                response.Data = holiday.items.First().CountryCode;
+            }
+
+            return response;
         }
     }
 }

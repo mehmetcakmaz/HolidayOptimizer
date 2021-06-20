@@ -78,7 +78,6 @@ namespace HolidayOptimizer.Tests
         public async void HolidayOptimizerService_GetMonthWithMostHolidaysByYear_Should_ReturnException_When_Year_Is_Valid()
         {
             // Arrange
-            // Arrange
             var mockHolidayModel = new List<HolidayModel>()
             {
                 new()
@@ -118,33 +117,92 @@ namespace HolidayOptimizer.Tests
         [InlineData(0)]
         [InlineData(-1)]
         [InlineData(-5)]
-        public void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
+        public async void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnError_When_Year_Not_Valid(int year)
         {
-            // Arrange
-            
-
             // Act
-            var result = _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
+            var result = await _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
 
             // Assert
             Assert.True(result.HasError);
             Assert.Equal($"{nameof(year)} parameter must be a valid value.", result.Errors.First());
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(5)]
-        public void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnException_When_Year_Is_Valid(int year)
+        [Fact]
+        public async void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_ReturnNotFound_When_Year_Is_Valid()
         {
             // Arrange
-            
+            var mockHolidayModel = new List<HolidayModel>()
+            {
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = Convert.ToDateTime("2021-01-01"),
+                    LocalName = "Sample",
+                    Name = "Sample"
+                },
+                new()
+                {
+                    CountryCode = "DE",
+                    Date = Convert.ToDateTime("2021-01-01"),
+                    LocalName = "Sample",
+                    Name = "Sample"
+                },
+                new()
+                {
+                    CountryCode = "TR",
+                    Date = Convert.ToDateTime("2021-01-01"),
+                    LocalName = "Sample",
+                    Name = "Sample"
+                }
+            };
+
+            _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
 
             // Act
-            var result = _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(year);
+            var result = await _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(DateTime.Now.Year);
 
             // Assert
             Assert.False(result.HasError);
+            Assert.Empty(result.Data);
+        }
+
+        [Fact]
+        public async void HolidayOptimizerService_GetCountryWithMostUniqueHolidaysByYear_Should_Ok_When_Year_Is_Valid()
+        {
+            // Arrange
+            var mockHolidayModel = new List<HolidayModel>()
+            {
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = Convert.ToDateTime("2021-01-01"),
+                    LocalName = "Sample",
+                    Name = "Sample"
+                },
+                new()
+                {
+                    CountryCode = "NL",
+                    Date = Convert.ToDateTime("2021-01-02"),
+                    LocalName = "Sample 2",
+                    Name = "Sample 1"
+                },
+                new()
+                {
+                    CountryCode = "TR",
+                    Date = Convert.ToDateTime("2021-01-01"),
+                    LocalName = "Sample",
+                    Name = "Sample"
+                }
+            };
+
+            _mockNagerService.Setup(s => s.GetPublicHolidaysForAllCountryAsync(It.IsAny<int>())).ReturnsAsync(() => mockHolidayModel);
+
+            // Act
+            var result = await _holidayOptimizerService.GetCountryWithMostUniqueHolidaysByYear(DateTime.Now.Year);
+
+            // Assert
+            Assert.False(result.HasError);
+            Assert.Equal("NL", result.Data);
         }
     }
 }
